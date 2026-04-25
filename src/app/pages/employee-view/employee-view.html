@@ -1,0 +1,27 @@
+<div class="container mt-4" style="max-width: 600px;">
+  <h2 class="mb-3">Employee Details</h2>
+
+  <div *ngIf="employee">
+    <div class="text-center mb-3">
+      <img *ngIf="employee.photoUrl"
+           [src]="employee.photoUrl"
+           alt="Employee Photo"
+           class="img-fluid rounded"
+           style="max-height: 250px;">
+    </div>
+
+    <ul class="list-group mb-3">
+      <li class="list-group-item"><strong>Name:</strong> {{ employee.first_name }} {{ employee.last_name }}</li>
+      <li class="list-group-item"><strong>Email:</strong> {{ employee.email }}</li>
+      <li class="list-group-item"><strong>Position:</strong> {{ employee.position }}</li>
+      <li class="list-group-item"><strong>Department:</strong> {{ employee.department }}</li>
+    </ul>
+
+    <button class="btn btn-secondary me-2" routerLink="/employees">Back</button>
+    <button class="btn btn-warning" [routerLink]="['/employees/edit', employee._id]">Edit</button>
+  </div>
+
+  <div *ngIf="!employee">
+    Loading employee details...
+  </div>
+</div>
