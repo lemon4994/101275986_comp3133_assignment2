@@ -22,7 +22,7 @@ const GET_EMPLOYEES = gql`
 
 const DELETE_EMPLOYEE = gql`
   mutation DeleteEmployee($id: ID!) {
-    deleteEmployee(_id: $id)
+    deleteEmployee(id: $id)
   }
 `;
 
@@ -86,8 +86,16 @@ export class EmployeesList {
     this.apollo.mutate({
       mutation: DELETE_EMPLOYEE,
       variables: { id }
-    }).subscribe(() => {
-      this.loadEmployees();
+    }).subscribe({
+      next: () => {
+        this.employees = this.employees.filter((employee: any) => employee._id !== id);
+        this.cdr.detectChanges();
+        this.loadEmployees();
+      },
+      error: (err) => {
+        console.error(err);
+        alert('Failed to delete employee');
+      }
     });
   }
 }

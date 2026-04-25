@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Apollo } from 'apollo-angular';
 import gql from 'graphql-tag';
@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
 
 const GET_EMPLOYEE = gql`
   query GetEmployee($id: ID!) {
-    getEmployeeById(_id: $id) {
+    getEmployeeById(id: $id) {
       _id
       first_name
       last_name
@@ -16,7 +16,6 @@ const GET_EMPLOYEE = gql`
       salary
       date_of_joining
       department
-      employee_photo
     }
   }
 `;
@@ -30,25 +29,45 @@ const GET_EMPLOYEE = gql`
 })
 export class EmployeeView {
   employee: any = null;
+  loading = true;
+  errorMessage = '';
 
-  constructor(private route: ActivatedRoute, private apollo: Apollo) {
+  constructor(private route: ActivatedRoute, private apollo: Apollo, private ngZone: NgZone, private cdr: ChangeDetectorRef) {
     const id = this.route.snapshot.paramMap.get('id');
 
-    this.apollo.watchQuery({
+    this.apollo.query({
       query: GET_EMPLOYEE,
+      fetchPolicy: 'no-cache',
       variables: { id }
-    }).valueChanges.subscribe((result: any) => {
-      const employee = result?.data?.getEmployeeById;
+    }).subscribe({
+      next: (result: any) => {
+        const employee = result?.data?.getEmployeeById;
 
-      if (!employee) {
-        this.employee = null;
-        return;
+        this.ngZone.run(() => {
+          if (!employee) {
+            this.employee = null;
+            this.loading = false;
+            this.cdr.detectChanges();
+            return;
+          }
+
+          this.employee = {
+            ...employee,
+            date_of_joining_display: this.toDisplayDate(employee.date_of_joining)
+          };
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
+      },
+      error: (err) => {
+        console.error(err);
+        this.ngZone.run(() => {
+          this.employee = null;
+          this.loading = false;
+          this.errorMessage = 'Failed to load employee details';
+          this.cdr.detectChanges();
+        });
       }
-
-      this.employee = {
-        ...employee,
-        date_of_joining_display: this.toDisplayDate(employee.date_of_joining)
-      };
     });
   }
 

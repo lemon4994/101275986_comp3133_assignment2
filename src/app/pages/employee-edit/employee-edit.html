@@ -49,15 +49,7 @@
     </div>
 
     <div class="mb-3">
-      <label>Current Photo</label><br>
-       <img *ngIf="employee_photo"
-         [src]="employee_photo"
-           class="img-fluid rounded mb-2"
-           style="max-height: 200px;">
-    </div>
-
-    <div class="mb-3">
-      <label>Replace Photo</label>
+      <label>Upload Photo</label>
       <input type="file" class="form-control" (change)="onFileSelected($event)">
     </div>
 

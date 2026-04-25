@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Apollo } from 'apollo-angular';
 import gql from 'graphql-tag';
@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
 
 const GET_EMPLOYEE = gql`
   query GetEmployee($id: ID!) {
-    getEmployeeById(_id: $id) {
+    getEmployeeById(id: $id) {
       _id
       first_name
       last_name
@@ -17,7 +17,6 @@ const GET_EMPLOYEE = gql`
       salary
       date_of_joining
       department
-      employee_photo
     }
   }
 `;
@@ -70,34 +69,47 @@ export class EmployeeEdit {
   salary: number | null = null;
   date_of_joining = '';
   department = '';
-  employee_photo: string | null = null;
   newPhotoBase64: string | null = null;
 
-  constructor(private route: ActivatedRoute, private apollo: Apollo, private router: Router) {
+  constructor(
+    private route: ActivatedRoute,
+    private apollo: Apollo,
+    private router: Router,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
+  ) {
     this.id = this.route.snapshot.paramMap.get('id');
     this.loadEmployee();
   }
 
   loadEmployee() {
-    this.apollo.watchQuery({
+    this.apollo.query({
       query: GET_EMPLOYEE,
+      fetchPolicy: 'no-cache',
       variables: { id: this.id }
-    }).valueChanges.subscribe((result: any) => {
-      const emp = result?.data?.getEmployeeById;
+    }).subscribe({
+      next: (result: any) => {
+        const emp = result?.data?.getEmployeeById;
 
-      if (!emp) {
-        return;
+        if (!emp) {
+          return;
+        }
+
+        this.ngZone.run(() => {
+          this.first_name = emp.first_name;
+          this.last_name = emp.last_name;
+          this.email = emp.email;
+          this.gender = emp.gender ?? 'Other';
+          this.designation = emp.designation;
+          this.salary = emp.salary;
+          this.date_of_joining = this.toInputDate(emp.date_of_joining);
+          this.department = emp.department;
+          this.cdr.detectChanges();
+        });
+      },
+      error: (err) => {
+        console.error(err);
       }
-
-      this.first_name = emp.first_name;
-      this.last_name = emp.last_name;
-      this.email = emp.email;
-      this.gender = emp.gender ?? 'Other';
-      this.designation = emp.designation;
-      this.salary = emp.salary;
-      this.date_of_joining = this.toInputDate(emp.date_of_joining);
-      this.department = emp.department;
-      this.employee_photo = emp.employee_photo ?? null;
     });
   }
 
@@ -126,20 +138,25 @@ export class EmployeeEdit {
   }
 
   onSubmit() {
+    const variables: any = {
+      id: this.id,
+      first_name: this.first_name,
+      last_name: this.last_name,
+      email: this.email,
+      gender: this.gender,
+      designation: this.designation,
+      salary: this.salary !== null ? Number(this.salary) : null,
+      date_of_joining: this.date_of_joining,
+      department: this.department
+    };
+
+    if (this.newPhotoBase64) {
+      variables.employee_photo = this.newPhotoBase64;
+    }
+
     this.apollo.mutate({
       mutation: UPDATE_EMPLOYEE,
-      variables: {
-        id: this.id,
-        first_name: this.first_name,
-        last_name: this.last_name,
-        email: this.email,
-        gender: this.gender,
-        designation: this.designation,
-        salary: this.salary !== null ? Number(this.salary) : null,
-        date_of_joining: this.date_of_joining,
-        department: this.department,
-        employee_photo: this.newPhotoBase64 || this.employee_photo
-      }
+      variables
     }).subscribe({
       next: () => {
         this.router.navigate(['/employees']);
