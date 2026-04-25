@@ -12,9 +12,12 @@ const GET_EMPLOYEE = gql`
       first_name
       last_name
       email
-      position
+      gender
+      designation
+      salary
+      date_of_joining
       department
-      photoUrl
+      employee_photo
     }
   }
 `;
@@ -22,21 +25,27 @@ const GET_EMPLOYEE = gql`
 const UPDATE_EMPLOYEE = gql`
   mutation UpdateEmployee(
     $id: ID!,
-    $first_name: String!,
-    $last_name: String!,
-    $email: String!,
-    $position: String!,
-    $department: String!,
-    $photoUrl: String
+    $first_name: String,
+    $last_name: String,
+    $email: String,
+    $gender: String,
+    $designation: String,
+    $salary: Float,
+    $date_of_joining: String,
+    $department: String,
+    $employee_photo: String
   ) {
     updateEmployee(
-      _id: $id,
+      id: $id,
       first_name: $first_name,
       last_name: $last_name,
       email: $email,
-      position: $position,
+      gender: $gender,
+      designation: $designation,
+      salary: $salary,
+      date_of_joining: $date_of_joining,
       department: $department,
-      photoUrl: $photoUrl
+      employee_photo: $employee_photo
     ) {
       _id
     }
@@ -56,9 +65,12 @@ export class EmployeeEdit {
   first_name = '';
   last_name = '';
   email = '';
-  position = '';
+  gender = 'Other';
+  designation = '';
+  salary: number | null = null;
+  date_of_joining = '';
   department = '';
-  photoUrl: string | null = null;
+  employee_photo: string | null = null;
   newPhotoBase64: string | null = null;
 
   constructor(private route: ActivatedRoute, private apollo: Apollo, private router: Router) {
@@ -80,10 +92,26 @@ export class EmployeeEdit {
       this.first_name = emp.first_name;
       this.last_name = emp.last_name;
       this.email = emp.email;
-      this.position = emp.position;
+      this.gender = emp.gender ?? 'Other';
+      this.designation = emp.designation;
+      this.salary = emp.salary;
+      this.date_of_joining = this.toInputDate(emp.date_of_joining);
       this.department = emp.department;
-      this.photoUrl = emp.photoUrl ?? null;
+      this.employee_photo = emp.employee_photo ?? null;
     });
+  }
+
+  private toInputDate(value: unknown): string {
+    if (value === null || value === undefined || value === '') return '';
+
+    const raw = String(value);
+    const date = /^\d+$/.test(raw) ? new Date(Number(raw)) : new Date(raw);
+
+    if (Number.isNaN(date.getTime())) {
+      return '';
+    }
+
+    return date.toISOString().split('T')[0];
   }
 
   onFileSelected(event: any) {
@@ -105,9 +133,12 @@ export class EmployeeEdit {
         first_name: this.first_name,
         last_name: this.last_name,
         email: this.email,
-        position: this.position,
+        gender: this.gender,
+        designation: this.designation,
+        salary: this.salary !== null ? Number(this.salary) : null,
+        date_of_joining: this.date_of_joining,
         department: this.department,
-        photoUrl: this.newPhotoBase64 || this.photoUrl
+        employee_photo: this.newPhotoBase64 || this.employee_photo
       }
     }).subscribe({
       next: () => {

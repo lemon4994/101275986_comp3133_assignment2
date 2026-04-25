@@ -3,8 +3,8 @@
 
   <div *ngIf="employee">
     <div class="text-center mb-3">
-      <img *ngIf="employee.photoUrl"
-           [src]="employee.photoUrl"
+      <img *ngIf="employee.employee_photo"
+           [src]="employee.employee_photo"
            alt="Employee Photo"
            class="img-fluid rounded"
            style="max-height: 250px;">
@@ -13,7 +13,10 @@
     <ul class="list-group mb-3">
       <li class="list-group-item"><strong>Name:</strong> {{ employee.first_name }} {{ employee.last_name }}</li>
       <li class="list-group-item"><strong>Email:</strong> {{ employee.email }}</li>
-      <li class="list-group-item"><strong>Position:</strong> {{ employee.position }}</li>
+      <li class="list-group-item"><strong>Gender:</strong> {{ employee.gender }}</li>
+      <li class="list-group-item"><strong>Designation:</strong> {{ employee.designation }}</li>
+      <li class="list-group-item"><strong>Salary:</strong> {{ employee.salary }}</li>
+      <li class="list-group-item"><strong>Date of Joining:</strong> {{ employee.date_of_joining_display }}</li>
       <li class="list-group-item"><strong>Department:</strong> {{ employee.department }}</li>
     </ul>
 

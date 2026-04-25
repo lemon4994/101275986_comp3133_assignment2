@@ -9,18 +9,24 @@ const ADD_EMPLOYEE = gql`
   mutation AddEmployee(
     $first_name: String!,
     $last_name: String!,
-    $email: String!,
-    $position: String!,
+    $email: String,
+    $gender: String,
+    $designation: String!,
+    $salary: Float!,
+    $date_of_joining: String!,
     $department: String!,
-    $photoUrl: String
+    $employee_photo: String
   ) {
     addEmployee(
       first_name: $first_name,
       last_name: $last_name,
       email: $email,
-      position: $position,
+      gender: $gender,
+      designation: $designation,
+      salary: $salary,
+      date_of_joining: $date_of_joining,
       department: $department,
-      photoUrl: $photoUrl
+      employee_photo: $employee_photo
     ) {
       _id
     }
@@ -38,7 +44,10 @@ export class EmployeeAdd {
   first_name = '';
   last_name = '';
   email = '';
-  position = '';
+  gender = 'Other';
+  designation = '';
+  salary: number | null = null;
+  date_of_joining = '';
   department = '';
   photoBase64: string | null = null;
 
@@ -62,9 +71,12 @@ export class EmployeeAdd {
         first_name: this.first_name,
         last_name: this.last_name,
         email: this.email,
-        position: this.position,
+        gender: this.gender,
+        designation: this.designation,
+        salary: Number(this.salary),
+        date_of_joining: this.date_of_joining,
         department: this.department,
-        photoUrl: this.photoBase64
+        employee_photo: this.photoBase64
       }
     }).subscribe({
       next: () => {

@@ -4,10 +4,17 @@ import { Apollo } from 'apollo-angular';
 import gql from 'graphql-tag';
 import { Router, RouterLink } from '@angular/router';
 
-const LOGIN_MUTATION = gql`
-  mutation Login($email: String!, $password: String!) {
-    login(email: $email, password: $password) {
+const LOGIN_QUERY = gql`
+  query Login($username: String!, $password: String!) {
+    login(username: $username, password: $password) {
+      success
+      message
       token
+      user {
+        _id
+        username
+        email
+      }
     }
   }
 `;
@@ -20,25 +27,37 @@ const LOGIN_MUTATION = gql`
   styleUrls: ['./login.css']
 })
 export class Login {
-  email = '';
+  username = '';
   password = '';
 
   constructor(private apollo: Apollo, private router: Router) {}
 
   onSubmit() {
-    this.apollo.mutate({
-      mutation: LOGIN_MUTATION,
+    this.apollo.query({
+      query: LOGIN_QUERY,
+      fetchPolicy: 'no-cache',
       variables: {
-        email: this.email,
+        username: this.username,
         password: this.password
       }
     }).subscribe({
       next: (result: any) => {
-        localStorage.setItem('token', result.data.login.token);
+        const loginResult = result?.data?.login;
+
+        if (!loginResult?.success) {
+          alert(loginResult?.message || 'Invalid username or password');
+          return;
+        }
+
+        if (loginResult.token) {
+          localStorage.setItem('token', loginResult.token);
+        }
+
         this.router.navigate(['/employees']);
       },
-      error: () => {
-        alert('Invalid email or password');
+      error: (err) => {
+        console.error(err);
+        alert('Invalid username or password');
       }
     });
   }

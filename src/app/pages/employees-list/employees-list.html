@@ -10,35 +10,43 @@
       <tr>
         <th>Full Name</th>
         <th>Email</th>
-        <th>Position</th>
+        <th>Gender</th>
+        <th>Designation</th>
+        <th>Salary</th>
+        <th>Date of Joining</th>
         <th>Department</th>
         <th>Actions</th>
       </tr>
     </thead>
 
     <tbody>
-      <tr *ngFor="let emp of employees">
-        <td>{{ emp.first_name }} {{ emp.last_name }}</td>
-        <td>{{ emp.email }}</td>
-        <td>{{ emp.position }}</td>
-        <td>{{ emp.department }}</td>
-        <td>
-          <button class="btn btn-primary btn-sm me-2"
-                  [routerLink]="['/employees/view', emp._id]">
-            View
-          </button>
+      @for (emp of employees; track emp._id) {
+        <tr>
+          <td>{{ emp.first_name }} {{ emp.last_name }}</td>
+          <td>{{ emp.email }}</td>
+          <td>{{ emp.gender }}</td>
+          <td>{{ emp.designation }}</td>
+          <td>{{ emp.salary }}</td>
+          <td>{{ emp.date_of_joining_display }}</td>
+          <td>{{ emp.department }}</td>
+          <td>
+            <button class="btn btn-primary btn-sm me-2"
+                    [routerLink]="['/employees/view', emp._id]">
+              View
+            </button>
 
-          <button class="btn btn-warning btn-sm me-2"
-                  [routerLink]="['/employees/edit', emp._id]">
-            Edit
-          </button>
+            <button class="btn btn-warning btn-sm me-2"
+                    [routerLink]="['/employees/edit', emp._id]">
+              Edit
+            </button>
 
-          <button class="btn btn-danger btn-sm"
-                  (click)="deleteEmployee(emp._id)">
-            Delete
-          </button>
-        </td>
-      </tr>
+            <button class="btn btn-danger btn-sm"
+                    (click)="deleteEmployee(emp._id)">
+              Delete
+            </button>
+          </td>
+        </tr>
+      }
     </tbody>
   </table>
 </div>
