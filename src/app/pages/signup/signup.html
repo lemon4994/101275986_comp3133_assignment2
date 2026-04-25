@@ -3,6 +3,11 @@
 
   <form (ngSubmit)="onSubmit()">
     <div class="mb-3">
+      <label>Username</label>
+      <input type="text" class="form-control" [(ngModel)]="username" name="username" required>
+    </div>
+
+    <div class="mb-3">
       <label>Email</label>
       <input type="email" class="form-control" [(ngModel)]="email" name="email" required>
     </div>
@@ -14,4 +19,8 @@
 
     <button class="btn btn-primary w-100">Create Account</button>
   </form>
+
+  <div class="text-center mt-3">
+    <a routerLink="/login">Already have an account? Login</a>
+  </div>
 </div>

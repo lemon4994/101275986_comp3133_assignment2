@@ -41,7 +41,8 @@ export class EmployeesList {
     this.apollo.watchQuery({
       query: GET_EMPLOYEES
     }).valueChanges.subscribe((result: any) => {
-      this.employees = result.data.getAllEmployees;
+      const employees = result?.data?.getAllEmployees;
+      this.employees = Array.isArray(employees) ? employees : [];
     });
   }
 

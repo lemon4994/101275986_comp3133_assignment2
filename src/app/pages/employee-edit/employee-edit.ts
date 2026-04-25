@@ -71,14 +71,18 @@ export class EmployeeEdit {
       query: GET_EMPLOYEE,
       variables: { id: this.id }
     }).valueChanges.subscribe((result: any) => {
-      const emp = result.data.getEmployeeById;
+      const emp = result?.data?.getEmployeeById;
+
+      if (!emp) {
+        return;
+      }
 
       this.first_name = emp.first_name;
       this.last_name = emp.last_name;
       this.email = emp.email;
       this.position = emp.position;
       this.department = emp.department;
-      this.photoUrl = emp.photoUrl;
+      this.photoUrl = emp.photoUrl ?? null;
     });
   }
 

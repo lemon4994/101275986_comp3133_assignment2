@@ -35,7 +35,7 @@ export class EmployeeView {
       query: GET_EMPLOYEE,
       variables: { id }
     }).valueChanges.subscribe((result: any) => {
-      this.employee = result.data.getEmployeeById;
+      this.employee = result?.data?.getEmployeeById ?? null;
     });
   }
 }

@@ -1,6 +1,7 @@
-import { APOLLO_OPTIONS } from 'apollo-angular';
+import { provideApollo } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular/http';
 import { InMemoryCache } from '@apollo/client/core';
+import { inject } from '@angular/core';
 
 export function apolloFactory(httpLink: HttpLink) {
   return {
@@ -12,9 +13,5 @@ export function apolloFactory(httpLink: HttpLink) {
 }
 
 export const apolloProviders = [
-  {
-    provide: APOLLO_OPTIONS,
-    useFactory: apolloFactory,
-    deps: [HttpLink]
-  }
+  provideApollo(() => apolloFactory(inject(HttpLink)))
 ];
